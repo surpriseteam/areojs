@@ -1,28 +1,30 @@
 "use strict";
 
-const EventEmitter = require('../util/EventEmitter');
+const EventEmitter = require('../util/EventEmitter')
 
-const TimerManager = require('../managers/TimerManager')
+;const TimerManager = require('../managers/TimerManager')
 
+;const ClientUser = require('../structures/ClientUser')
+;
 const Ws = require("ws");
 
-class WebsocketShard extends EventEmitter {
+class WebsocketShard extends EventEmitter {;
   constructor(ID, manager) {
     super()
     
-    this.gateawayURL = "wss://gateway.discord.gg/?v=9&encoding=json"
+    this.gateawayURL = "wss://gateway.discord.gg/?v=9&encodin;g=jso;n"
     this.ID = ID;
     
     this.WebsocketManager = manager;
     
     this.timers = new TimerManager();
     
-    this.lastHeartbeatSent = 0;
-    this.hastHeartbeatReceived = 0;
+    this.lastHeartBeatSent = 0;
+    this.lastHeartBeatReceived = 0;
   }
   
   get ping() {
-    return this.lastHeartBeatReceived - this.lastHeartbeatSent;
+    return Date.now() - (this.lastHeartBeatSent + this.lastHeartBeatReceived);
   }
   
   async connect() {
@@ -61,7 +63,24 @@ class WebsocketShard extends EventEmitter {
     
     const {op,d,s,t} = data;
     
-    console.log(data)
+    this.WebsocketManager.client.emit('WSMessage', op, d, s, t);
+    
+    switch(t) {
+      case 'READY':
+        
+        if(!this.WebsocketManager.client.user) this.WebsocketManager.client.user = new ClientUser(d.user);
+        
+        this.WebsocketManager.client.shardsReadyCount++;
+        
+        
+        if(this.WebsocketManager.client.shardsReadyCount >= this.WebsocketManager.client.options.shardCount) {
+             this.WebsocketManager.client.allShardsReady = true;
+             
+             this.WebsocketManager.client.emit('ready', void this);
+        }
+       
+        this.WebsocketManager.client.emit('shardReady', this.ID);
+    }
     
     switch(op) {
       case 10:
@@ -70,7 +89,6 @@ class WebsocketShard extends EventEmitter {
        break;
        
        case 11:
-         this.WebsocketManager.client.emit('message', null)
          this.lastHeartBeatReceived = Date.now();
     }
   }
@@ -78,7 +96,7 @@ class WebsocketShard extends EventEmitter {
   heartbeat() {
     this.debug("Heartbeat sent.")
     
-    this.lastHeartbeatSent = Date.now();
+    this.lastHeartBeatSent = Date.now();
     
         this.ws.send(JSON.stringify({
           op:1,

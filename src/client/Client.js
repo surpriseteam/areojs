@@ -6,10 +6,13 @@ const WebsocketManager = require('../websocket/WebsocketManager');
 class Client extends EventEmitter {
   constructor(options) {
     super();
+    
     this.options = Object.assign({
       shardCount: 1
-    }, options)
-    
+    }, options);
+  
+    this.shardsReadyCount = 0;
+    this.allShardsReady = false;
     this.guilds = new Collection();
   
   }
