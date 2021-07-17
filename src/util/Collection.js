@@ -10,6 +10,15 @@ class Collection extends Map {
     
     return null;
   }
+  
+  reduce(fn, acumuledStartValue = 0) {
+    
+    for(let [key, value] of this) {
+      acumuledStartValue = fn(acumuledStartValue, value);
+    }
+    
+    return acumuledStartValue;
+  }
 }
 
 module.exports = Collection;

@@ -16,6 +16,13 @@ class WebsocketShard extends EventEmitter {
     this.WebsocketManager = manager;
     
     this.timers = new TimerManager();
+    
+    this.lastHeartbeatSent = 0;
+    this.hastHeartbeatReceived = 0;
+  }
+  
+  get ping() {
+    return this.lastHeartBeatReceived - this.lastHeartbeatSent;
   }
   
   async connect() {
@@ -25,8 +32,8 @@ class WebsocketShard extends EventEmitter {
   }
   
   onOpen() {
-    
-    this.ws.send(JSON.stringify({
+  
+  this.ws.send(JSON.stringify({
       op: 2,
       d: {
         token: this.WebsocketManager.client.token,
@@ -45,22 +52,38 @@ class WebsocketShard extends EventEmitter {
     
   }
   
+  debug(str) {
+    this.WebsocketManager.client.emit('debug', str)
+  }
+  
   onMessage(data) {
     data = JSON.parse(data);
     
     const {op,d,s,t} = data;
     
+    console.log(data)
+    
     switch(op) {
       case 10:
-       this.timers.setInterval("heartbeat", this.heartbeat, d.heartbeat_interval, this);
+       this.timers.setInterval("heartbeat", this.heartbeat.bind(this), d.heartbeat_interval);
+       
+       break;
+       
+       case 11:
+         this.WebsocketManager.client.emit('message', null)
+         this.lastHeartBeatReceived = Date.now();
     }
   }
   
   heartbeat() {
-    this.ws.send(JSON.stringify({
-      op: 2,
-      d: null
-    }));
+    this.debug("Heartbeat sent.")
+    
+    this.lastHeartbeatSent = Date.now();
+    
+        this.ws.send(JSON.stringify({
+          op:1,
+          d:null
+    }))
   }
 }
 

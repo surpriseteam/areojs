@@ -13,6 +13,7 @@ class Client extends EventEmitter {
     this.guilds = new Collection();
   
   }
+
   
   async connect(token) {
     this.ws = new WebsocketManager(this);

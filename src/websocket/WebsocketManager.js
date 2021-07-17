@@ -30,6 +30,8 @@ const EventEmitter = require('../util/EventEmitter')
   createShards() {
     for(let ID of Array.from({ length: this.client.options.shardCount }, (_, i) => i)) {
       this.shards.set(ID, new WebsocketShard(ID, this));
+      
+      
     }
   }
 }

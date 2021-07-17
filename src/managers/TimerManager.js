@@ -4,9 +4,9 @@ class TimerManager {
   constructor() {
     this._intervals = new Collection();
   }
-  setInterval(name, fn, time, thisArg = this) {
+  setInterval(name, fn, time) {
     this._intervals.set(name, setInterval(()=>{
-      fn.call(thisArg);
+      fn();
     }, time));
   }
 }
