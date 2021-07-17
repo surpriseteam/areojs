@@ -17,6 +17,8 @@ const MessageMentions = require('./MessageMentions')
     ATTACHMENTS
     */
     
+    client.emit('test', data.mention_channels);
+    
     this.id = data.id;
     this.channelID = data.channel_id;
     this.guildID = data.guild_id;

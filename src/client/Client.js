@@ -23,6 +23,10 @@ class Client extends EventEmitter {
     return this.readyAt - Date.now();
   }
   
+  createMessage(channelID, data) {
+    return Client.request(this, 'post', `channels/${channelID}/messages`, data);
+  }
+  
   async connect(token) {
     this.ws = new WebsocketManager(this);
     
@@ -32,5 +36,7 @@ class Client extends EventEmitter {
   }
   
 }
+
+Client.request = require('../API/request');
 
 module.exports = Client;
