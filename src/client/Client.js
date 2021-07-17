@@ -12,11 +12,16 @@ class Client extends EventEmitter {
     }, options);
   
     this.shardsReadyCount = 0;
-    this.allShardsReady = false;
+    this.ready = false;
+    this.readyAt = null;
+    
     this.guilds = new Collection();
   
   }
-
+  
+  get uptime() {
+    return this.readyAt - Date.now();
+  }
   
   async connect(token) {
     this.ws = new WebsocketManager(this);

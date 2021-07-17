@@ -1,7 +1,9 @@
 const Base = require('./Base')
+const GuildMember = require('./GuildMember');
 
-;class User {
-  constructor(data) {
+class User extends Base {
+  constructor(client, data = {}) {
+    super(client);
     
     this.username = data.username;
     this.discriminator = data.discriminator;
@@ -19,7 +21,9 @@ const Base = require('./Base')
     this.premiumType = 'premium_type' in data ? data.premium_type : null;
     this.publicFlags = 'public_types' in data ? Number(data.public_flags) : null;
     
-    this.flags = Number(data.flags);
+    this.member = data.member instanceof Object ? new GuildMember(client, data.member) : null;
+    
+    this.flags = isNaN(Number(data.flags)) ? null : Number(data.flags);
     
   }
 }

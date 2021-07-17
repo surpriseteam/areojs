@@ -5,22 +5,24 @@ const EventEmitter = require('../util/EventEmitter')
 ;const TimerManager = require('../managers/TimerManager')
 
 ;const ClientUser = require('../structures/ClientUser')
-;
-const Ws = require("ws");
+; const Message = require('../structures/Message')
 
-class WebsocketShard extends EventEmitter {;
+;const Ws = require("ws");
+
+;class WebsocketShard extends EventEmitter {;
   constructor(ID, manager) {
     super()
     
-    this.gateawayURL = "wss://gateway.discord.gg/?v=9&encodin;g=jso;n"
-    this.ID = ID;
+    ;this.gateawayURL = "wss://gateway.discord.gg/?v=9&encodin;g=json"
+    ;this.ID = ID;
     
-    this.WebsocketManager = manager;
+    ;this.WebsocketManager = manager
     
-    this.timers = new TimerManager();
+    ;this.timers = new TimerManager()
     
-    this.lastHeartBeatSent = 0;
-    this.lastHeartBeatReceived = 0;
+    ;this.lastHeartBeatSent = 0
+    ;this.lastHeartBeatReceived = 0
+    ;
   }
   
   get ping() {
@@ -68,18 +70,25 @@ class WebsocketShard extends EventEmitter {;
     switch(t) {
       case 'READY':
         
-        if(!this.WebsocketManager.client.user) this.WebsocketManager.client.user = new ClientUser(d.user);
+        if(!this.WebsocketManager.client.user) this.WebsocketManager.client.user = new ClientUser(this.WebsocketManager.client, d.user);
         
         this.WebsocketManager.client.shardsReadyCount++;
         
         
         if(this.WebsocketManager.client.shardsReadyCount >= this.WebsocketManager.client.options.shardCount) {
-             this.WebsocketManager.client.allShardsReady = true;
-             
+             this.WebsocketManager.client.ready = true;
+             this.WebsocketManager.client.readyAt = Date.now();
              this.WebsocketManager.client.emit('ready', void this);
         }
        
         this.WebsocketManager.client.emit('shardReady', this.ID);
+        break;
+        
+      case 'MESSAGE_CREATE':
+         const message = new Message(this.WebsocketManager.client, d);
+         
+         this.WebsocketManager.client.emit('messageCreate', message);
+        break;
     }
     
     switch(op) {

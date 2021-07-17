@@ -1,8 +1,8 @@
 const User = require('./User');
 
 class ClientUser extends User {
-  constructor(data) {
-    super(data);
+  constructor(client, data) {
+    super(client, data);
   }
 }
 
