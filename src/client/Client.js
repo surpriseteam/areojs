@@ -23,8 +23,19 @@ class Client extends EventEmitter {
     return this.readyAt - Date.now();
   }
   
-  createMessage(channelID, data) {
-    return Client.request(this, 'post', `channels/${channelID}/messages`, data);
+  createMessage(channelID, data, ...args) {
+    var Msg = {};
+    
+    if(typeof data === 'string')  Msg.content = data;
+    if(typeof data === "object") {
+      Msg = Object.assign(Msg, data);
+      if(Msg.embed) {
+        if(!Msg.embeds) Msg.embeds = [];
+        Msg.embeds.push(Msg.embed);
+      }
+    }
+    
+    return Client.request(this, 'post', `channels/${channelID}/messages`, Msg);
   }
   
   async connect(token) {

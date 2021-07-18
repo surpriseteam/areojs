@@ -17,6 +17,7 @@ const EventEmitter = require('../util/EventEmitter')
     ;this.ID = ID;
     
     ;this.WebsocketManager = manager
+    ;this.client = this.WebsocketManager.client
     
     ;this.timers = new TimerManager()
     
@@ -88,7 +89,20 @@ const EventEmitter = require('../util/EventEmitter')
          const message = new Message(this.WebsocketManager.client, d);
          
          this.WebsocketManager.client.emit('messageCreate', message);
+         
+         break;
+         
+      case 'MESSAGE_UPDATE':
+         const messageUpdated = new Message(this.WebsocketManager.client, d);
+         
+         this.WebsocketManager.client.emit('messageUpdate', messageUpdated);
         break;
+        
+      case 'GUILD_CREATE':
+        this.client.guilds.set(d.id, d);
+        
+        break;
+        
     }
     
     switch(op) {

@@ -1,5 +1,5 @@
 class Base {
-  constructor(client) {
+  constructor(client = null) {
     
    Object.defineProperty(this, 'client', { value: client });
    
