@@ -1,3 +1,4 @@
 module.exports = {
-  Authorization: process.env.TOKEN
+  Authorization: process.env.TOKEN,
+  Prefix: process.env.PREFIX
 };

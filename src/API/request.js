@@ -3,7 +3,7 @@ const url = require('url');
 
 let apiURL = "https://discord.com/api/v9/";
 
-function request(client, method, path, data) {
+function request(client = {}, method, path, data={}) {
   apiURL += path;
   
   let parsedUrl = url.parse(apiURL);
@@ -19,13 +19,26 @@ function request(client, method, path, data) {
   return new Promise((resolve, reject) => {
     
     const req = https.request(config, res => {
+      var r = ""
+      
+      
       res.on('data', (d) => {
-        client.emit('test', d.toString());
+        var string = d.toString();
+        
+        r+=string;
+        
       });
+      
+      res.on('close', () => {
+        resolve(JSON.parse(r))
+      })
       
     });
     
-    req.on('error', reject);
+    req.on('error', e => {
+      throw e;
+    });
+    
     req.write(JSON.stringify(data));
     req.end();
     

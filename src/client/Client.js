@@ -3,6 +3,8 @@ const Collection = require('../util/Collection');
 
 const WebsocketManager = require('../websocket/WebsocketManager');
 
+const Message = require('../structures/Message');
+
 class Client extends EventEmitter {
   constructor(options) {
     super();
@@ -23,19 +25,12 @@ class Client extends EventEmitter {
     return this.readyAt - Date.now();
   }
   
-  createMessage(channelID, data, ...args) {
-    var Msg = {};
+  createMessage(channelID, data) {
     
-    if(typeof data === 'string')  Msg.content = data;
-    if(typeof data === "object") {
-      Msg = Object.assign(Msg, data);
-      if(Msg.embed) {
-        if(!Msg.embeds) Msg.embeds = [];
-        Msg.embeds.push(Msg.embed);
-      }
-    }
+    return new Promise(resolve => {
+      Client.request(this, 'post', `channels/${channelID}/messages`, data).then(m => resolve(new Message(this, m)));
+    });
     
-    return Client.request(this, 'post', `channels/${channelID}/messages`, Msg);
   }
   
   async connect(token) {

@@ -5,29 +5,26 @@ const EventEmitter = require('../util/EventEmitter')
 ;const TimerManager = require('../managers/TimerManager')
 
 ;const ClientUser = require('../structures/ClientUser')
-; const Message = require('../structures/Message')
+;const Message = require('../structures/Message')
+;const Guild = require('../structures/Guild')
 
-;const Ws = require("ws");
+;const Ws = require("ws")
 
-;class WebsocketShard extends EventEmitter {;
+;class WebsocketShard extends EventEmitter {
   constructor(ID, manager) {
     super()
     
     ;this.gateawayURL = "wss://gateway.discord.gg/?v=9&encodin;g=json"
-    ;this.ID = ID;
+    ;this.ID = ID
     
     ;this.WebsocketManager = manager
     ;this.client = this.WebsocketManager.client
     
     ;this.timers = new TimerManager()
     
+    ;this.ping = -1
     ;this.lastHeartBeatSent = 0
-    ;this.lastHeartBeatReceived = 0
     ;
-  }
-  
-  get ping() {
-    return Date.now() - (this.lastHeartBeatSent + this.lastHeartBeatReceived);
   }
   
   async connect() {
@@ -99,7 +96,9 @@ const EventEmitter = require('../util/EventEmitter')
         break;
         
       case 'GUILD_CREATE':
-        this.client.guilds.set(d.id, d);
+        const guildCreated = new Guild(d, this.id, this.client);
+        
+        this.client.guilds.set(guildCreated.id, guildCreated);
         
         break;
         
@@ -112,7 +111,7 @@ const EventEmitter = require('../util/EventEmitter')
        break;
        
        case 11:
-         this.lastHeartBeatReceived = Date.now();
+         this.ping = Date.now() - (this.lastHeartBeatSent === 0 ? (Date.now() + 1) : this.lastHeartBeatSent);
     }
   }
   

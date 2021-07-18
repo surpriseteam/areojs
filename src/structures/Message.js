@@ -17,18 +17,18 @@ class Message extends Base {
     
     this.id = data.id;
     this.channelID = data.channel_id;
-    this.guildID = data.guild_id;
+    this.guildID = data.guild_id ? data.guild_id : null;
     this.content = data.content;
-    this.nonce = data.nonce;
+    this.nonce = data.nonce ? data.nonce : null;
     
     this.type = Number(data.type);
     this.flags = Number(data.flags);
     
     this.referencedMessage = this.referenced_message instanceof Object ? new Message(this.referenced_message) : null;
     this.author = new User(client, data.author);
-    this.member = new GuildMember(client, data.member);
+    this.member = data.member ? new GuildMember(client, data.member) : null;
     this.mentions = new MessageMentions(client, data);
-    this.attachments = data.attachments.map((a) => new MessageAttachment(client, a));
+    this.attachments = data.attachments ? data.attachments.map((a) => new MessageAttachment(client, a)) : null;
     
     this.tts = Boolean(data.tts);
     this.pinned = Boolean(data.pinned);
@@ -42,18 +42,9 @@ class Message extends Base {
     
     this.editedTimestamp = isNaN(editedParsed) ? null : editedParsed;
     
-    client.emit('DEV_DEBUG', 'Message class instantied.', { Message: this.toJSON(), Data: data, Client: client });
+    client.emit('DEV_DEBUG', 'Message class instantied.', { Message: this, Data: data, Client: client });
   }
   
-  toJSON() {
-  let { id, channelID: channel_id, guildID: guild_id, content, nonce, type, flags, referencedMessage: referenced_message, author, member, attachments, tts, pinned, createdAt: timestamp, editedAt: edited_timestamp } = this;
-    
-    attachments = attachments.map(a => a.toJSON());
-    
-    return {
-      id, channel_id, guild_id, content, nonce, type, flags, referenced_message, author, member, attachments, tts, pinned, timestamp, edited_timestamp
-    };
-  }
 }
 
 module.exports = Message;

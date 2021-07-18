@@ -1,43 +1,37 @@
 const Client = require('../src');
-const { Authorization } = require('./Authorization');
+const { Authorization, Prefix } = require('./Authorization');
 
 const util = require("util");
 
 const client = Client();
 
-client.on('DEV_DEBUG', (text, data) => {
-  console.log(text);
-  console.log(data);
-});
-
-client.on("WSMessage", console.log)
-
-client.on('messageCreate', async message => {
-  
-  var prefix = "l+"
-  
-  if(!message.content.startsWith(prefix)) return;
-  if(message.author.bot) return;
-  
-  const args = message.content.slice(2).split(" ")
-  const command = args.shift();
-  
+client.on("messageCreate", async message => {
   console.log(message)
   
-  if(message.content.startsWith(prefix+'ping')) {
-    var m =  await client.createMessage(message.channelID, {content:'Pong!'});
-    console.log(m)
+  if(message.author.bot) return;
+  if(!message.content.startsWith(Prefix)) return;
+  
+  const args = message.content.trim().slice(Prefix.length).split(" ");
+  const command = args.shift().toLowerCase();
+  
+  console.log(command)
+  
+  if(command == "eval" && message.author.id == '852922358170779658') {
+    
+    client.createMessage(
+      message.channelID, {content:util.inspect(eval(args.join(" ")))});
   }
   
-  if(command === "eval") {
-    if(message.author.id != '852922358170779658') return;
+  if(command == "ping") {
+    const { shardID } = client.guilds.get(message.guildID);
     
-    var evaled = eval(args.join(" "));
-    var inspected = util.inspect(evaled)
+    const { ping } = client.ws.shards.get(shardID);
     
-    console.log(inspected)
-    console.log(await client.createMessage(message.channelID, {content:inspected}))
+    console.log(await client.createMessage(message.channelID, {
+      content: `Pong! \`${ping}ms\``
+    }))
   }
+  
 })
 
 client.connect(Authorization);
